@@ -20,8 +20,8 @@ const fs = require('fs-extra')
 // const resolver = require('../../../../utils/resolver')
 const sharedAsset = require('./asset')
 
-// const aliasRegExp = /^~?@\//
-// const nodeModulesExp = /^~?(@?[a-zA-Z])/
+const aliasRegExp = /^~?@\//
+const nodeModulesExp = /^~?(@?[a-zA-Z])/
 
 module.exports = {
   plugins (options) {

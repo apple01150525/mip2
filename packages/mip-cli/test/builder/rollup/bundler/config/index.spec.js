@@ -13,7 +13,7 @@ const {expect} = require('chai')
 const projectDir = path.resolve(__dirname, '../../../../mock/vue-dependencies')
 const etplDir = path.resolve(projectDir, 'node_modules/etpl')
 
-describe('test full plugin config', function () {
+describe.only('test full plugin config', function () {
   let commonOptions = {
     outputPath: path.resolve(__dirname, 'dist'),
     asset: 'https://www.baidu.com/'
@@ -37,19 +37,20 @@ describe('test full plugin config', function () {
     })
 
     options.baseDir = options.dir
+    let {input, output} = configFactory(options)
+    let bundler = await rollup.rollup(input)
 
-    let bundler = await rollup.rollup(configFactory(options))
+    let result = await bundler.generate(output)
 
-    let result = await bundler.generate({
-      file: path.resolve(options.outputPath, 'index.js'),
-      name: 'haha',
-      sourcemap: true,
-      format: 'amd',
-      amd: {
-        id: 'test-amd-id'
-      }
-    })
+    // console.log(result)
+    // console.log(bundler.modules.map(k => k.id))
 
+    fs.writeFileSync(path.resolve(commonOptions.outputPath, '..', 'dist.js'), result.code, 'utf-8')
+
+    // console.log(result)
+    // delete result.code
+    // delete result.map
+    // console.log(result)
     // console.log('********************************')
     // console.log(bundler.modules.map(mod => mod.id))
     // console.log('')

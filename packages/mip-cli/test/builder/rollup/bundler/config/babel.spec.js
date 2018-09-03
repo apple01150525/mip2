@@ -9,12 +9,13 @@ const path = require('path')
 const rollup = require('rollup')
 const babelConfigFactory = require('../../../../../lib/builder/rollup/bundler/config/babel')
 const unbundleConfigFactory = require('../../../../../lib/builder/rollup/bundler/config/unbundle')
+const rollupConfigFactory = require('../../../../../lib/builder/rollup/bundler/config/index')
 // const babel = require('rollup-plugin-babel')
 // const unbundle = require('../../../../../lib/builder/rollup/bundler/plugins/rollup-plugin-unbundle')
 const fs = require('fs-extra')
 const {expect} = require('chai')
 
-describe.skip('test rollup-plugin-babel config', function () {
+describe('test rollup-plugin-babel config', function () {
   let commonOptions = {
     outputPath: path.resolve(__dirname, 'dist')
   }
@@ -91,7 +92,7 @@ describe.skip('test rollup-plugin-babel config', function () {
     expect(result.code).to.contain('mip-example-item')
   })
 
-  it('should be generate require.context successfully', async function () {
+  it.skip('should be generate require.context successfully', async function () {
     let options = Object.assign({}, commonOptions, {
       filename: path.resolve(__dirname, '../../../../mock/fragment-files/require-context.js'),
       dir: path.resolve(__dirname, '../../../../mock/fragment-files')
@@ -120,20 +121,36 @@ describe.skip('test rollup-plugin-babel config', function () {
       }
     })
 
+    // @TODO 没想好监测条件
+    // console.log(result.code)
     // console.log(result.code)
     // expect(result.code).to.contain('console.log')
   })
 
-  it('should be generate dynamic import successfully', async function () {
-    console.log('---------- in here ----------')
+  it.skip('should be generate dynamic import successfully', async function () {
     let options = Object.assign({}, commonOptions, {
       filename: path.resolve(__dirname, '../../../../mock/fragment-files/dynamic-import.js'),
       dir: path.resolve(__dirname, '../../../../mock/fragment-files')
     })
 
+    let tmp
+
     let bundler = await rollup.rollup({
       input: options.filename,
       plugins: [
+        // {
+        //   resolveId (importee, importer) {
+        //     if (/common\/utils/.test(importee)) {
+        //       tmp = path.resolve(importer, '..', importee + '.js')
+        //       return '\0hahaha/common/utils'
+        //     }
+        //   },
+        //   load (id) {
+        //     if (id === '\0hahaha/common/utils') {
+        //       return fs.readFileSync(tmp, 'utf-8')
+        //     }
+        //   }
+        // },
         unbundleConfigFactory(options),
         babelConfigFactory({
           proxy: {
@@ -144,21 +161,25 @@ describe.skip('test rollup-plugin-babel config', function () {
       ]
     })
 
-    console.log(bundler.modules[0])
+    let {output} = rollupConfigFactory(options)
 
-    let result = await bundler.generate({
-      file: path.resolve(options.outputPath, 'index.js'),
-      name: 'haha',
-      sourcemap: true,
-      format: 'amd',
-      amd: {
-        id: 'test-amd-id'
-      }
-    })
+    // console.log(bundler.modules)
+
+    let result = await bundler.generate(output)
+
+    // Object.keys(result.modules).forEach(key => {
+    //   console.log(key)
+    //   // console.log(result.modules[key])
+    //   // console.log('-----------------')
+    // })
+
+    // console.log(bundler.imports)
+    // console.log(bundler.modules[0].dependencies)
+    console.log(result.code)
 
     // console.log(result.modules)
     // console.log(result.modules.removedExports)
-    console.log('---------------------------')
+    // console.log('---------------------------')
 
     // console.log(result.code)
     // expect(result.code).to.contain('console.log')

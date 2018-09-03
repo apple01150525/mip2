@@ -11,10 +11,11 @@ const unbundle = require('../plugins/rollup-plugin-unbundle')
 module.exports = function (options) {
   return unbundle({
     include: [
-      /node_modules/,
-      /common\//
+      /node_modules[/\\][^?]*\.js(on)?$/,
+      /common[/\\][^?]*\.js(on)?$/
     ],
-    exclude: /\.(?!js(on)?$)/,
-    baseDir: options.dir
+    // exclude: /\.(?!js(on)?$)/,
+    baseDir: options.dir,
+    filename: options.filename
   })
 }

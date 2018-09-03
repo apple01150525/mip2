@@ -4,9 +4,10 @@
 
 <script>
 
-import {sayHi} from './utils'
+import {sayHi, loadEtpl} from './utils'
 import {sayBye} from '../../common/utils'
 import '../../common/common.less'
+import mustache from 'mustache'
 
 export default {
   data () {
@@ -17,9 +18,7 @@ export default {
   mounted () {
     sayHi()
 
-    import('etpl/src/main').then(function (etpl) {
-      console.log(etpl.version)
-    })
+    loadEtpl()
   },
   destroyed () {
     sayBye()
