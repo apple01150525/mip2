@@ -42,10 +42,14 @@ describe.only('test full plugin config', function () {
 
     let result = await bundler.generate(output)
 
+    console.log(bundler)
+    console.log('-------------')
+    console.log(result)
+
     // console.log(result)
     // console.log(bundler.modules.map(k => k.id))
 
-    fs.writeFileSync(path.resolve(commonOptions.outputPath, '..', 'dist.js'), result.code, 'utf-8')
+    // fs.writeFileSync(path.resolve(commonOptions.outputPath, '..', 'dist.js'), result.code, 'utf-8')
 
     // console.log(result)
     // delete result.code

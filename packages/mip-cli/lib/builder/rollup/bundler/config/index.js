@@ -9,11 +9,9 @@ const resolver = require('resolve')
 module.exports = function (options) {
   const plugin = name => {
     let conf = require(`./${name}`)
-    if (typeof conf === 'function') {
-      return conf(options)
-    }
-
-    return conf
+    return typeof conf === 'function'
+      ? conf(options)
+      : conf
   }
 
   return {
@@ -47,13 +45,12 @@ module.exports = function (options) {
           id: mainId
         },
         paths (id) {
-          // console.log(id)
           let filename = resolver.sync(id, {basedir: options.dir})
           let newId = idFactory({
             dir: options.dir,
             filename: filename
           })
-          // console.log(newId)
+
           return newId
         }
       }
