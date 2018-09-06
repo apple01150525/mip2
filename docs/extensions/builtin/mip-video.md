@@ -105,6 +105,9 @@
 取值范围：正整数
 默认值：0
 
+### 其他
+其他可使用在 mip-video/video 标签上的属性，请参见 [MDN文档-video标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video
+
 
 ## api
 
