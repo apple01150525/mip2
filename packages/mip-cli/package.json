@@ -7,7 +7,7 @@
     "mip2": "bin/mip2"
   },
   "scripts": {
-    "test": "mocha test/builder/**/**/*.spec.js",
+    "test": "mocha test/builder/**/*.spec.js",
     "lint": "eslint lib"
   },
   "repository": {

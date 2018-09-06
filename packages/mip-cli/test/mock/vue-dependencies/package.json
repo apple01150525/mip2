@@ -12,6 +12,7 @@
   },
   "author": "clark-t (clarktanglei@163.com)",
   "dependencies": {
+    "core-js": "^2.5.7",
     "etpl": "^3.2.0",
     "github-markdown-css": "^2.10.0",
     "mustache": "^2.3.2"

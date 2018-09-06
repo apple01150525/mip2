@@ -1,4 +1,9 @@
 /**
+ * @file bundler.spec.js
+ * @author clark-t (clarktanglei@163.com)
+ */
+
+/**
  * @file rollup-plugin-vue.spec.js
  * @author clark-t (clarktanglei@163.com)
  */
@@ -6,47 +11,42 @@
 const path = require('path')
 const rollup = require('rollup')
 const execa = require('execa')
-const configFactory = require('../../../../../lib/builder/rollup/bundler/config/index')
+const Bundler = require('../../../../lib/builder/rollup/bundler/index')
 const fs = require('fs-extra')
 const {expect} = require('chai')
 
-const projectDir = path.resolve(__dirname, '../../../../mock/fragment-files')
+const projectDir = path.resolve(__dirname, '../../../mock/vue-dependencies')
 const etplDir = path.resolve(projectDir, 'node_modules/etpl')
 
-describe.only('test full plugin config', function () {
+describe.skip('test bundler', function () {
   let commonOptions = {
-    outputPath: path.resolve(__dirname, 'dist'),
+    outputPath: path.resolve(projectDir, 'dist'),
     asset: 'https://www.baidu.com/'
   }
 
-  // before(async function () {
-  //   this.timeout(15000)
-  //   await fs.remove(commonOptions.outputPath)
-  //   if (await fs.exists(etplDir)) {
-  //     return
-  //   }
+  before(async function () {
+    this.timeout(15000)
+    await fs.remove(commonOptions.outputPath)
+    if (await fs.exists(etplDir)) {
+      return
+    }
 
-  //   process.chdir(projectDir)
-  //   await execa('npm install')
-  // })
+    process.chdir(projectDir)
+    await execa('npm install')
+  })
 
   it('should be generate component js successfully', async function () {
+    this.timeout(15000)
+
     let options = Object.assign({}, commonOptions, {
-      filename: path.resolve(projectDir, 'common-index.js'),
-      // filename: path.resolve(projectDir, 'components/mip-example/mip-example.vue'),
+      filename: path.resolve(projectDir, 'components/mip-example/mip-example.vue'),
       dir: projectDir
     })
 
     options.baseDir = options.dir
-    let {input, output} = configFactory(options)
-    let bundler = await rollup.rollup(input)
 
-    let result = await bundler.generate(output)
-
-    console.log(bundler)
-    console.log('-------------')
-    console.log(result)
-
+    let bundler = new Bundler(options)
+    await bundler.write()
     // console.log(result)
     // console.log(bundler.modules.map(k => k.id))
 
@@ -65,7 +65,7 @@ describe.only('test full plugin config', function () {
     // expect(result.code).to.contain('mip-example-item')
   })
 
-  after(function () {
-    return fs.remove(commonOptions.outputPath)
-  })
+  // after(function () {
+  //   return fs.remove(commonOptions.outputPath)
+  // })
 })

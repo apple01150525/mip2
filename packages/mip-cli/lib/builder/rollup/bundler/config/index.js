@@ -19,13 +19,13 @@ module.exports = function (options) {
       return {
         input: options.filename,
         plugins: [
-          plugin('alias'),
+          // plugin('alias'),
           plugin('unbundle'),
-          plugin('vue'),
-          plugin('babel'),
-          plugin('postcss'),
-          plugin('url'),
-          plugin('replace'),
+          // plugin('vue'),
+          // plugin('babel'),
+          // plugin('postcss'),
+          // plugin('url'),
+          // plugin('replace'),
           plugin('node-resolve'),
           plugin('commonjs')
         ]
