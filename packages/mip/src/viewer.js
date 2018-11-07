@@ -17,9 +17,15 @@ import {supportsPassive} from './page/util/feature-detect'
 import {resolvePath} from './page/util/path'
 import viewport from './viewport'
 import Page from './page/index'
-import {MESSAGE_PAGE_RESIZE, CUSTOM_EVENT_SHOW_PAGE, CUSTOM_EVENT_HIDE_PAGE} from './page/const'
+import {
+  CUSTOM_EVENT_SHOW_PAGE,
+  CUSTOM_EVENT_HIDE_PAGE,
+  OUTER_MESSAGE_PUSH_STATE,
+  OUTER_MESSAGE_REPLACE_STATE
+} from './page/const'
 import Messager from './messager'
 import fixedElement from './fixed-element'
+import clientPrerender from './client-prerender'
 
 /**
  * Save window.
@@ -40,13 +46,20 @@ let viewer = {
      * The initialise method of viewer
      */
   init () {
+
     /**
-     * Send Message
+     * SF 创建的第一个页面的 window.name
+     */
+    this.rootName = fn.getRootName(window.name)
+
+    /**
+     * Send Message, keep messager only one if prerender have created
      *
      * @inner
      * @type {Object}
      */
-    this.messager = new Messager()
+    const messager = clientPrerender.messager
+    this.messager = messager || new Messager({name: this.rootName})
 
     /**
      * The gesture of document.Used by the event-action of Viewer.
@@ -59,8 +72,6 @@ let viewer = {
     })
 
     this.setupEventAction()
-    // handle preregistered  extensions
-    this.handlePreregisteredExtensions()
 
     this.page = new Page()
 
@@ -114,14 +125,21 @@ let viewer = {
    * 1. `pushState` when clicking a `<a mip-link>` element (called 'loadiframe')
    * 2. `mipscroll` when scrolling inside an iframe, try to let parent page hide its header.
    * 3. `mippageload` when current page loaded
-   * 4. `performance_update`
+   * 4. `performance-update`
    *
    * @param {string} eventName
    * @param {Object} data Message body
    */
   sendMessage (eventName, data = {}) {
     if (!win.MIP.standalone) {
-      this.messager.sendMessage(eventName, data)
+      // Send Message in normal case
+      // Save in queue and execute when page-active received, and update recoreded event time if prerendered
+      clientPrerender.execute(() => {
+        if (clientPrerender.isPrerendered && data.time) {
+          data.time = Date.now()
+        }
+        this.messager.sendMessage(eventName, data)
+      })
     }
   },
 
@@ -159,27 +177,6 @@ let viewer = {
   },
 
   /**
-   * Setup event-action of viewer. To handle `on="tap:xxx"`.
-   */
-  handlePreregisteredExtensions () {
-    window.MIP = window.MIP || {}
-    window.MIP.push = extensions => {
-      if (extensions && typeof extensions.func === 'function') {
-        extensions.func()
-      }
-    }
-    let preregisteredExtensions = window.MIP.extensions
-    if (preregisteredExtensions && preregisteredExtensions.length) {
-      for (let i = 0; i < preregisteredExtensions.length; i++) {
-        let curExtensionObj = preregisteredExtensions[i]
-        if (curExtensionObj && typeof curExtensionObj.func === 'function') {
-          curExtensionObj.func()
-        }
-      }
-    }
-  },
-
-  /**
    *
    * @param {string} to Target url
    * @param {Object} options
@@ -207,16 +204,13 @@ let viewer = {
     // Jump in top window directly
     // 1. Cross origin and NOT in SF
     // 2. Not MIP page and not only hash change
-    if ((this._isCrossOrigin(to) && window.MIP.standalone)) {
+    if ((this._isCrossOrigin(to) && window.MIP.standalone) ||
+      (!isMipLink && !isHashInCurrentPage)) {
       if (replace) {
         window.top.location.replace(to)
       } else {
         window.top.location.href = to
       }
-      return
-    }
-    if (!isMipLink && !isHashInCurrentPage) {
-      window.top.location.href = to
       return
     }
 
@@ -233,7 +227,7 @@ let viewer = {
       url: parseCacheUrl(completeUrl),
       state
     }
-    this.sendMessage(replace ? 'replaceState' : 'pushState', pushMessage)
+    this.sendMessage(replace ? OUTER_MESSAGE_REPLACE_STATE : OUTER_MESSAGE_PUSH_STATE, pushMessage)
 
     // Create target route
     let targetRoute = {
@@ -355,6 +349,7 @@ let viewer = {
       if (platform.isUc() && telRegexp.test(to)) {
         return
       }
+
       if (!httpRegexp.test(to)) {
         this.setAttribute('target', '_top')
         return
@@ -443,9 +438,8 @@ let viewer = {
 
     if (this.isIframed) {
       this.viewportScroll()
+      this.fixSoftKeyboard()
     }
-
-    // this.fixSoftKeyboard()
   },
 
   /**
@@ -473,23 +467,28 @@ let viewer = {
   },
 
   /**
-   * fix soft keyboard bug
-   *
-   * https://github.com/mipengine/mip2/issues/38
+   * 修复安卓手机软键盘遮挡的问题
+   * 在 iframe 内部点击输入框弹出软键盘后，浏览器不会自动聚焦到输入框，从而导致软键盘遮挡住输入框。输入一个字可以恢复。
    */
-  // fixSoftKeyboard () {
-  //   // reset iframe's height when input focus/blur
-  //   event.delegate(document, 'input', 'focus', event => {
-  //     this.page.notifyRootPage({
-  //       type: MESSAGE_PAGE_RESIZE
-  //     })
-  //   }, true)
-  //   event.delegate(document, 'input', 'blur', event => {
-  //     this.page.notifyRootPage({
-  //       type: MESSAGE_PAGE_RESIZE
-  //     })
-  //   }, true)
-  // },
+  fixSoftKeyboard () {
+    if (platform.isAndroid()) {
+      window.addEventListener('resize', () => {
+        let element = document.activeElement
+        let tagName = element.tagName.toLowerCase()
+
+        if (element && (tagName === 'input' || tagName === 'textarea')) {
+          setTimeout(() => {
+            if (typeof element.scrollIntoViewIfNeeded === 'function') {
+              element.scrollIntoViewIfNeeded()
+            } else if (typeof element.scrollIntoView === 'function') {
+              element.scrollIntoView()
+              document.body.scrollTop -= 44
+            }
+          }, 250)
+        }
+      })
+    }
+  },
 
   /**
    * lock body scroll in iOS

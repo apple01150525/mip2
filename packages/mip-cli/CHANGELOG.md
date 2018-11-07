@@ -1,5 +1,15 @@
 # CHANGELOG
 
+- 1.4.1
+    1. 增加 css 压缩功能
+
+- 1.4.0
+    1. 编译生成的组件代码支持 script 异步加载
+- 1.3.2
+    1. 更新 mip-component-validator 依赖版本，修复 validator 无法获取最新白名单的 bug
+- 1.3.1
+    1. 修复 plugin 删除 index 入口抛出的异常
+    2. 优化 plugin 错误信息输出
 - 1.3.0
     1. 修复不同组件仓库构建出来的代码样式存在覆盖现象
 - 1.2.6

@@ -32,6 +32,8 @@ export const MESSAGE_CROSS_ORIGIN = 'page-cross-origin'
 export const MESSAGE_BROADCAST_EVENT = 'page-broadcast-event'
 export const MESSAGE_PAGE_RESIZE = 'page-resize'
 export const MESSAGE_MIPIFRAME_RESIZE = 'mip-iframe-resize'
+export const MESSAGE_PAGE_ACTIVE = 'page-active'
+export const MESSAGE_PRERENDER_INTERACTIVE = 'prerender-interactive'
 
 export const NON_EXISTS_PAGE_ID = 'non-exists-page-id'
 export const CUSTOM_EVENT_RESIZE_PAGE = 'resize-page'
@@ -50,3 +52,12 @@ export const BUILT_IN_COMPONENTS = [
 ]
 
 export const MAX_PAGE_NUM = 6
+
+// 和 SF 通讯的事件名称
+export const OUTER_MESSAGE_PERFORMANCE_UPDATE = 'performance-update'
+export const OUTER_MESSAGE_CHANGE_STATE = 'change-state'
+export const OUTER_MESSAGE_VIDEO_JUMP = 'video-jump'
+export const OUTER_MESSAGE_HISTORY_NAVIGATE = 'history-navigate'
+export const OUTER_MESSAGE_PUSH_STATE = 'push-state'
+export const OUTER_MESSAGE_REPLACE_STATE = 'replace-state'
+export const OUTER_MESSAGE_CLOSE = 'close'

@@ -105,7 +105,7 @@
         <p>全局数据#city1 => <span m-text="city1" style="color: red;"></span></p>
         <p>页面数据test => <span m-text="test" style="color: red;"></span></p>
         <br />
-        <a class="link" href="./data.html" mip-link>Go to Data</a>
+        <a class="link" href="./data.html" mip-link cache-first>Go to Data</a>
     </div>
 
     <a id="anchor" href="./index.html#anchor">Anchor</a>
@@ -121,11 +121,9 @@ Fast - Respond quickly to user interactions with silky smooth animations and no 
     </p>
 
     <a class="link" href="../builtin/mip-iframe.html" mip-link>Login</a>
-    <a class="link" href="./test.html" mip-link>Go to Test</a>
-    <a class="link" onclick="window.MIP.viewer.open('./tree.html', {isMipLink:true})">Go to Tree (viewer.open)</a>
-    <a class="link" href="http://test.baidu.com:8080/examples/page/tree.html" mip-link>Go to Tree(Cross Origin)</a>
     <a class="link" href="./tree.html" mip-link data-title="Customized title">Go to Tree</a>
-
+    <a class="link" href="./tree.html" mip-link cache-first>Go to Tree cache first</a>
+    <a class="link" id="prerender">Prerender</a>
 
     <br><br>
     <p>
@@ -211,4 +209,14 @@ Fast - Respond quickly to user interactions with silky smooth animations and no 
     </mip-shell>
 
     <script src="../../dist/mip.js"></script>
+    <script>
+        document.querySelector('#prerender').addEventListener('click', () => {
+            window.MIP.viewer.page.prerender([
+                'http://localhost:8080/examples/page/tree.html',
+                'http://localhost:8080/examples/page/data.html'
+            ]).then(iframes => {
+                alert('prerender done')
+            })
+        })
+    </script>
 </body>

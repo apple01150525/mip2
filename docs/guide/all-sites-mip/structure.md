@@ -9,11 +9,7 @@
     </html>
     ```
 
-2. 所有页面 __必须__ 在 `<body>` 的 __最后__ 编写或引用 mip 相关的 js。其中顺序是：
-    1. mip.js
-    2. 各组件的 js。如有相互依赖，把被依赖项写在前面。
-
-    举例来说，一个页面引用了两个组件 `component-a` 和 `component-b`，并且 `component-b` 依赖 `component-a` （例如在 `component-b` 的模板中出现了 `<mip-component-a>`），那么这个页面的组织结构应该是：
+2. 所有页面 __必须__ 在 `<body>` 的 __最后__ 编写或引用 mip 相关的 js。js 之间顺序可以随意。
 
     ```html
     <body>
@@ -46,5 +42,7 @@
     5. 默认情况下点击链接后会向 History 中 `push` 一条记录。如果想覆盖当前记录，可以在 `<a>` 元素上增加 `replace` 属性。
 
     6. 通过 `data-title` 和 `innerHTML` 可以设置下一个页面的标题。(详情可见 [MIP Shell 相关章节](./mip-shell.md))
+
+    7. __重点注意__：对于老版 MIP1 页面(即引用的是 https://c.mipcdn.com/static/v1/mip.js)，因为其内部不包含 SHELL 等功能，因此等同于外部页面，__不应当__ 使用 `mip-link` 或者 `data-type="mip"`，否则可能会出现 loading 动画永远无法消失，一直遮盖下层页面的问题。
 
 4. 页面内元素的样式中 `z-index` 不能超过 10000，否则会引起页面切换时的样式遮盖问题。
